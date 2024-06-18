@@ -1,13 +1,18 @@
 package com.zshs.rpcframeworksimple.remoting.transport.socket;
 
+import com.zshs.rpcframeworksimple.proxy.SmsService;
+import com.zshs.rpcframeworksimple.proxy.SmsServiceImpl;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
 
 public class HelloClient {
 
@@ -32,8 +37,9 @@ public class HelloClient {
         HelloClient helloClient = new HelloClient();
 
 
-        RpcRequest rpcRequest = RpcRequest.builder().requestId("123456789").interfaceName("SmsService").methodName("send").group("1").build();
-
+        Class<?>[] paramTypes = new Class[]{String.class, String.class};
+        Object[] parameters = new Object[]{"13800000000", "hello"};
+        RpcRequest rpcRequest = RpcRequest.builder().requestId("123456789").interfaceName("com.zshs.rpcframeworksimple.proxy.SmsServiceImpl").methodName("send").parameters(parameters).paramTypes(paramTypes)  .group("1").build();
 
         for (int i = 0; i < 10; i++) {
             rpcRequest.setVersion("1." + i);

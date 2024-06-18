@@ -3,6 +3,7 @@ package com.zshs.rpcframeworksimple.remoting.transport.socket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +14,8 @@ import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import com.zshs.rpcframeworksimple.remoting.transport.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.sun.java.browser.dom.DOMService.getService;
 
 public class HelloServer {
 
@@ -60,8 +63,9 @@ public class HelloServer {
                 // 进行必要的输入验证和处理
 //                rpcRequest.setContent("hello world");
                 // 通过输出流向客户端发送响应信息
+                String o = (String)invokeMethod(rpcRequest);
                 RpcResponse<String> rpcResponse = new RpcResponse<>();
-                rpcResponse.setData(interfaceName + "." + methodName);
+                rpcResponse.setData(o);
                 objectOutputStream.writeObject(rpcResponse);
                 objectOutputStream.flush();
             } else {
@@ -80,6 +84,34 @@ public class HelloServer {
             } catch (IOException e) {
                 logger.error("Error while closing socket", e);
             }
+        }
+    }
+
+    // 执行目标方法
+    public Object invokeMethod(RpcRequest rpcRequest) {
+        // 获取接口名
+        String interfaceName = rpcRequest.getInterfaceName();
+        // 获取方法名
+        String methodName = rpcRequest.getMethodName();
+        // 获取参数列表
+        Object[] parameters = rpcRequest.getParameters();
+        // 获取参数类型列表
+        Class<?>[] parameterTypes = rpcRequest.getParamTypes();
+        // 获取接口实例
+
+        try {
+            // 获取目标类
+            Class<?> targetClass = Class.forName(interfaceName);
+            // 创建目标类实例
+            Object targetInstance = targetClass.getDeclaredConstructor().newInstance();
+            // 获取目标方法
+            Method targetMethod = targetClass.getMethod(methodName, parameterTypes);
+            // 调用目标方法并返回结果
+            return targetMethod.invoke(targetInstance, parameters);
+
+        } catch (Exception e) {
+            logger.error("Error occurred during invoking method:", e);
+            throw new RuntimeException(e);
         }
     }
 
