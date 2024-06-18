@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
+import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import com.zshs.rpcframeworksimple.remoting.transport.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +43,26 @@ public class HelloServer {
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
             // 通过输入流读取客户端发送的请求信息
             Object object = objectInputStream.readObject();
-            if (object instanceof Message) {
-                Message message = (Message) object;
-                logger.info("Server receive message: {}", message.getContent());
+            if (object instanceof RpcRequest) {
+                // 获取RpcRequest 传递的信息
+                RpcRequest rpcRequest = (RpcRequest) object;
+                String requestId = rpcRequest.getRequestId();
+                // 接口名
+                String interfaceName = rpcRequest.getInterfaceName();
+                // 方法名
+                String methodName = rpcRequest.getMethodName();
+                // 参数列表
+                Object[] parameters = rpcRequest.getParameters();
+                logger.info("Server receive interfaceName: {}", interfaceName);
+                logger.info("Server receive methodName: {}", methodName);
+                logger.info("Server receive parameters: {}", parameters);
+
                 // 进行必要的输入验证和处理
-                message.setContent("hello world");
+//                rpcRequest.setContent("hello world");
                 // 通过输出流向客户端发送响应信息
-                objectOutputStream.writeObject(message);
+                RpcResponse<String> rpcResponse = new RpcResponse<>();
+                rpcResponse.setData(interfaceName + "." + methodName);
+                objectOutputStream.writeObject(rpcResponse);
                 objectOutputStream.flush();
             } else {
                 logger.error("Received object is not an instance of Message");
@@ -72,6 +87,4 @@ public class HelloServer {
         HelloServer helloServer = new HelloServer();
         helloServer.start(6666);
     }
-
-
 }
