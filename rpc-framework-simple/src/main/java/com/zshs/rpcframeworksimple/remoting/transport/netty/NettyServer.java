@@ -10,11 +10,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 public class NettyServer {
-    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+
     private final int port;
 
     private NettyServer(int port) {
@@ -50,7 +51,7 @@ public class NettyServer {
             // 等待服务端监听端口关闭
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            logger.error("occur exception when start server:", e);
+            log.error("occur exception when start server:", e);
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

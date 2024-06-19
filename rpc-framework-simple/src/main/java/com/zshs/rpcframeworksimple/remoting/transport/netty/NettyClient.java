@@ -9,15 +9,17 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.AttributeKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * @author shuang.kou
  * @createTime 2020年05月13日 20:48:00
  */
+
+@Slf4j
 public class NettyClient {
-    private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
+
     private final String host;
     private final int port;
     private static final Bootstrap b;
@@ -62,15 +64,15 @@ public class NettyClient {
     public RpcResponse sendMessage(RpcRequest rpcRequest) {
         try {
             ChannelFuture f = b.connect(host, port).sync();
-            logger.info("client connect  {}", host + ":" + port);
+            log.info("client connect  {}", host + ":" + port);
             Channel futureChannel = f.channel();
-            logger.info("send message");
+            log.info("send message");
             if (futureChannel != null) {
                 futureChannel.writeAndFlush(rpcRequest).addListener(future -> {
                     if (future.isSuccess()) {
-                        logger.info("client send message: [{}]", rpcRequest.toString());
+                        log.info("client send message: [{}]", rpcRequest.toString());
                     } else {
-                        logger.error("Send failed:", future.cause());
+                        log.error("Send failed:", future.cause());
                     }
                 });
                //阻塞等待 ，直到Channel关闭
@@ -80,7 +82,7 @@ public class NettyClient {
                 return futureChannel.attr(key).get();
             }
         } catch (InterruptedException e) {
-            logger.error("occur exception when connect server:", e);
+            log.error("occur exception when connect server:", e);
         }
         return null;
     }

@@ -63,76 +63,30 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-        <!-- log -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.1</version>
             <scope>test</scope>
         </dependency>
-        <!-- test -->
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter-engine</artifactId>-->
-<!--            <version>${junit.jupiter.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.junit.platform</groupId>-->
-<!--            <artifactId>junit-platform-runner</artifactId>-->
-<!--            <version>${junit.platform.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <encoding>${encoding}</encoding>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle-maven-plugin.version}</version>
-                <configuration>
-                    <configLocation>config/checkstyle.xml</configLocation>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle-maven-plugin.version}</version>
-                <configuration>
-                    <configLocation>checkstyle.xml</configLocation>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
+
 
 </project>
