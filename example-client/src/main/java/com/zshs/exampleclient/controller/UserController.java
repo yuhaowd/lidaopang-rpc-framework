@@ -1,6 +1,7 @@
 package com.zshs.exampleclient.controller;
 
 import com.zshs.exampleserver.service.HelloService;
+import com.zshs.exampleserver.service.impl.HelloServiceImpl;
 import com.zshs.rpcframeworksimple.annotation.RpcReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController {
 
-    @RpcReference(HelloService.class)
+    @RpcReference(value = HelloService.class, implementation = "com.zshs.exampleserver.service.impl.HelloServiceImpl")
     private HelloService helloService;
 
     @GetMapping("/hello")
@@ -25,5 +26,12 @@ public class UserController {
         return s;
     }
 
+    @GetMapping("/hello2")
+    public String sayHello2(String name, Integer age) {
 
+        String s = helloService.sayHello(name, age);
+        log.info("receive from server result: {}", s);
+
+        return s;
+    }
 }

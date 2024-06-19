@@ -14,7 +14,7 @@ public class ExampleServerApplication {
 
 
         // 将服务注册进注册中心
-        ServiceRegistry.register("com.zshs.exampleserver.service.HelloService", new HelloServiceImpl());
+//        ServiceRegistry.register("com.zshs.exampleserver.service.HelloService", new HelloServiceImpl());
 
         // 开启 Socket 服务端
         // TODO 优化开启监听的方式

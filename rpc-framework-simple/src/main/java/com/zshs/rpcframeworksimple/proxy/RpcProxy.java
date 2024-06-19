@@ -40,11 +40,11 @@ public class RpcProxy implements InvocationHandler {
         return result.getData();
     }
 
-    public static <T> T createProxy(Class<T> interfaceClass) {
+    public static <T> T createProxy(Class<T> interfaceClass, Class<?> implClass) {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new RpcProxy(interfaceClass.getName())
+                new RpcProxy(implClass.getName())
         );
     }
 }

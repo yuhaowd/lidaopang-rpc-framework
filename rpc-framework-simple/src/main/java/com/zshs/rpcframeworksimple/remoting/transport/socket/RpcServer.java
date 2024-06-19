@@ -89,17 +89,11 @@ public class RpcServer {
         log.info("Server receive parameters: {}", parameters);
 
         try {
-
             Object service = ServiceRegistry.getService(interfaceName);
-
             // 获取方法
             Method method = service.getClass().getMethod(methodName, parameterTypes);
-
             // 调用方法并返回结果
             return method.invoke(service, parameters);
-
-
-
         } catch (Exception e) {
             log.error("Error occurred during invoking method:", e);
             throw new RuntimeException(e);
