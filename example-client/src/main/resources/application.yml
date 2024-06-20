@@ -4,3 +4,10 @@ spring:
 server:
   port: 8001
 
+
+
+rpc:
+  server:
+    port: 8889
+    host: 127.0.0.1
+

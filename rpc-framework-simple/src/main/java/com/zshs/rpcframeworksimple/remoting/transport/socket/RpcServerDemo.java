@@ -1,14 +1,5 @@
 package com.zshs.rpcframeworksimple.remoting.transport.socket;
 
-import com.zshs.rpcframeworkcommon.registry.ServiceRegistry;
-import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
-import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,51 +9,32 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.zshs.rpcframeworkcommon.registry.ServiceRegistry;
+import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
+import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
+import lombok.extern.slf4j.Slf4j;
 
-@Component
 @Slf4j
-public class RpcServer {
+public class RpcServerDemo {
 
-    @Resource
-    private ServerSocket serverSocket;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(10); // 线程池大小可以根据实际情况调整
 
-    private volatile boolean running = true;
-
-    @Value("${socket.port}")
-    private Integer port;
-
-    @PostConstruct
-    public void start() {
-        new Thread(() -> {
-            try {
-                log.info("Socket server started on port 6666");
-                while (running) {
-                    Socket socket = serverSocket.accept();
-                    log.info("Client connected");
-                    // 使用线程池处理客户端请求
-                    executorService.execute(() -> processClientRequest(socket));
-                }
-            } catch (IOException e) {
-                if (running) {
-                    log.error("Error starting server: {}", e.getMessage());
-                }
+    public void start(int port) {
+        // 创建 ServerSocket 对象并且绑定一个端口
+        try (ServerSocket server = new ServerSocket(port)) {
+            log.info("Server started on port {}", port);
+            // 通过 accept() 方法监听客户端请求
+            while (true) {
+                final Socket socket = server.accept();
+                log.info("Client connected");
+                // 使用线程池处理客户端请求
+                executorService.execute(() -> {
+                    processClientRequest(socket);
+                });
             }
-        }).start();
-    }
-
-    @PreDestroy
-    public void stop() {
-        running = false;
-        try {
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                serverSocket.close();
-            }
-            executorService.shutdown();
-            log.info("Socket server stopped");
         } catch (IOException e) {
-            log.error("Error stopping server: {}", e.getMessage());
+            log.error("Occur IOException:", e);
         }
     }
 
@@ -126,5 +98,10 @@ public class RpcServer {
             log.error("Error occurred during invoking method:", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+        RpcServerDemo rpcServer = new RpcServerDemo();
+        rpcServer.start(6666);
     }
 }

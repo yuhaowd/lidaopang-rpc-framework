@@ -39,7 +39,7 @@ public class RpcProxy implements InvocationHandler {
                 .build();
 
         RpcClient rpcClient = new RpcClient();
-        RpcResponse<String> result = (RpcResponse<String>) rpcClient.send(rpcRequest, "127.0.0.1", 6666);
+        RpcResponse<String> result = (RpcResponse<String>) rpcClient.send(rpcRequest, "127.0.0.1", 8888);
 
         return result.getData();
     }

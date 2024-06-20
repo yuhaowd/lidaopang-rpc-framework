@@ -37,6 +37,7 @@
         <hessian.version>4.0.65</hessian.version>
         <spring.boot.test>2.7.18</spring.boot.test>
         <spring.boot.web>2.5.4</spring.boot.web>
+        <zookeeper.version>3.6.3</zookeeper.version>
     </properties>
     <modules>
         <module>rpc-framework-simple</module>
@@ -74,6 +75,7 @@
             <version>5.8.1</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

@@ -5,4 +5,11 @@ server:
   port: 8002
 
 
+rpc:
+  server:
+    port: 8888
+    host: 127.0.0.1
+    registry:
+      zookeeper: 192.168.
+
 
