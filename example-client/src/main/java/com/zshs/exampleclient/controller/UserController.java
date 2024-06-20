@@ -17,10 +17,21 @@ public class UserController {
     @RpcReference(value = HelloService.class, implementation = "com.zshs.exampleserver.service.impl.HelloServiceImpl")
     private HelloService helloService;
 
+    @RpcReference(value = HelloService.class, implementation = "com.zshs.exampleserver.service.impl.HiServiceImpl")
+    private HelloService hiService;
+
     @GetMapping("/hello")
     public String sayHello(String name) {
 
         String s = helloService.sayHello(name);
+        log.info("receive from server result: {}", s);
+
+        return s;
+    }
+    @GetMapping("/hi")
+    public String sayHi(String name) {
+
+        String s = hiService.sayHello(name);
         log.info("receive from server result: {}", s);
 
         return s;

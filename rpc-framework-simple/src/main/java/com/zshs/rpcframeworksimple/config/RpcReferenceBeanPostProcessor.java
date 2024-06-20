@@ -37,7 +37,6 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
                 Class<?> serviceClass = rpcReference.value();
                 String implementation = rpcReference.implementation();
                 Object proxy;
-
                 if (!implementation.isEmpty()) {
                     try {
                         Class<?> implClass = Class.forName(implementation);

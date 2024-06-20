@@ -13,8 +13,6 @@ import java.net.Socket;
 @Slf4j
 public class RpcClient {
 
-    
-
     public Object send(RpcRequest rpcRequest, String host, int port) {
         //1. 创建Socket对象并且指定服务器的地址和端口号
         try (Socket socket = new Socket(host, port)) {
@@ -32,8 +30,6 @@ public class RpcClient {
 
     public static void main(String[] args) {
         RpcClient rpcClient = new RpcClient();
-
-
         Class<?>[] paramTypes = new Class[]{String.class, String.class};
         Object[] parameters = new Object[]{"13800000000", "hello"};
         RpcRequest rpcRequest = RpcRequest.builder().requestId("123456789").interfaceName("com.zshs.rpcframeworksimple.proxy.test.SmsServiceImpl").methodName("send").parameters(parameters).paramTypes(paramTypes)  .group("1").build();
