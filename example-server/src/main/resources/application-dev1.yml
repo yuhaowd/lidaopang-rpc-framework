@@ -1,17 +1,16 @@
 spring:
   application:
-    name: example-client
+    name: example-server
 server:
-  port: 8001
-
-
+  port: 8003
 
 rpc:
   server:
-    port: 8884 # socketServer端口
+    port: 8887 # socketServer端口
     host: 127.0.0.1 # socketServer地址
     registry:
       zookeeper:
         address: 192.168.170.129:2181
+
 
 

@@ -3,6 +3,7 @@ package com.zshs.exampleserver.service.impl;
 
 import com.zshs.exampleserver.service.HelloService;
 import com.zshs.rpcframeworksimple.annotation.RpcService;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component

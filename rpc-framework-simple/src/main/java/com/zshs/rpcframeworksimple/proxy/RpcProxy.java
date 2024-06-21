@@ -8,14 +8,19 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 
 @Slf4j
 public class RpcProxy implements InvocationHandler {
 
     private final String interfaceName;
 
-    public RpcProxy(String interfaceName) {
+    private final InetSocketAddress inetSocketAddress;
+
+    public RpcProxy(String interfaceName, InetSocketAddress inetSocketAddress) {
         this.interfaceName = interfaceName;
+        this.inetSocketAddress = inetSocketAddress;
     }
 
     @Override
@@ -39,16 +44,17 @@ public class RpcProxy implements InvocationHandler {
                 .build();
 
         RpcClient rpcClient = new RpcClient();
-        RpcResponse<String> result = (RpcResponse<String>) rpcClient.send(rpcRequest, "127.0.0.1", 8888);
+        log.info("addr: {}", this.inetSocketAddress.getAddress().getHostAddress());
+        RpcResponse<String> result = (RpcResponse<String>) rpcClient.send(rpcRequest, this.inetSocketAddress.getAddress().getHostAddress(), this.inetSocketAddress.getPort());
 
         return result.getData();
     }
 
-    public static <T> T createProxy(Class<T> interfaceClass, Class<?> implClass) {
+    public static <T> T createProxy(Class<T> interfaceClass, Class<?> implClass, InetSocketAddress inetSocketAddress) {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new RpcProxy(implClass.getName())
+                new RpcProxy(implClass.getName(), inetSocketAddress)
         );
     }
 }

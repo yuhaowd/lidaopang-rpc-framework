@@ -1,15 +1,8 @@
 spring:
-  application:
-    name: example-server
-server:
-  port: 8002
+  profiles:
+    active: dev
 
 
-rpc:
-  server:
-    port: 8888
-    host: 127.0.0.1
-    registry:
-      zookeeper: 192.168.
+
 
 

@@ -30,14 +30,12 @@ public class RpcServer {
 
     private volatile boolean running = true;
 
-    @Value("${socket.port}")
-    private Integer port;
 
     @PostConstruct
     public void start() {
         new Thread(() -> {
             try {
-                log.info("Socket server started on port 6666");
+                log.info("Socket server started");
                 while (running) {
                     Socket socket = serverSocket.accept();
                     log.info("Client connected");
@@ -117,7 +115,10 @@ public class RpcServer {
         log.info("Server receive parameters: {}", parameters);
 
         try {
-            Object service = ServiceRegistry.getService(interfaceName);
+            // TODO 获取对象的方式可以在优化下
+            Class<?> aClass = Class.forName(interfaceName);
+            Object service = aClass.newInstance();
+//            Object service = ServiceRegistry.getService(interfaceName);
             // 获取方法
             Method method = service.getClass().getMethod(methodName, parameterTypes);
             // 调用方法并返回结果

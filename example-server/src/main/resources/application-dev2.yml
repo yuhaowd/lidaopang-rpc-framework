@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: example-server
+
+server:
+  port: 8004
+
+rpc:
+  server:
+    port: 8886 # socketServer端口
+    host: 127.0.0.1 # socketServer地址
+    registry:
+      zookeeper:
+        address: 192.168.170.129:2181

@@ -1,8 +1,7 @@
 package com.zshs.rpcframeworksimple.registry.zk.impl;
 
-import com.zshs.rpcframeworkcommon.exception.RpcException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zshs.rpcframeworksimple.registry.zk.ServiceDiscovery;
-import com.zshs.rpcframeworksimple.registry.zk.util.CuratorUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 服务发现（基于zookeeper实现）
@@ -22,22 +22,39 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
     @Resource
     private CuratorFramework zkClient;
 
-
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final Random random = new Random();
 
     @Override
     public InetSocketAddress lookupService(String rpcServiceName) {
-        return null;
-//        CuratorFramework zkClient = CuratorUtils.getZkClient();
-//        List<String> serviceUrlList = CuratorUtils.getChildrenNodes(zkClient, rpcServiceName);
-//        if (serviceUrlList.size() == 0) {
-//            throw new RpcException(RpcErrorMessage.SERVICE_CAN_NOT_BE_FOUND, rpcServiceName);
-//        }
-//        // load balancing
-//        String targetServiceUrl = loadBalance.selectServiceAddress(serviceUrlList);
-//        log.info("Successfully found the service address:[{}]", targetServiceUrl);
-//        String[] socketAddressArray = targetServiceUrl.split(":");
-//        String host = socketAddressArray[0];
-//        int port = Integer.parseInt(socketAddressArray[1]);
-//        return new InetSocketAddress(host, port);
+        try {
+            String servicePath = "/services/" + rpcServiceName;
+
+            // 获取服务地址列表
+            byte[] data = zkClient.getData().forPath(servicePath);
+            if (data == null || data.length == 0) {
+                log.info("No service found for: " + rpcServiceName);
+                return null;
+            }
+
+            List<String> addresses = objectMapper.readValue(data, List.class);
+
+            if (addresses.isEmpty()) {
+                log.info("No service found for: " + rpcServiceName);
+                return null;
+            }
+
+            // 随机选择一个地址
+            String address = addresses.get(random.nextInt(addresses.size()));
+            String[] addressParts = address.split(":");
+            String host = addressParts[0];
+            int port = Integer.parseInt(addressParts[1]);
+            log.info("Service found: " + rpcServiceName + " -> " + address);
+            return new InetSocketAddress(host, port);
+        } catch (Exception e) {
+            log.info("Failed to lookup service: " + rpcServiceName);
+            e.printStackTrace();
+            return null;
+        }
     }
 }

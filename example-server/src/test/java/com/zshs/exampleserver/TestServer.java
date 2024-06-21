@@ -1,29 +1,30 @@
 package com.zshs.exampleserver;
 
 
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 
-
 @SpringBootTest
-class ExampleServerApplicationTests {
+class TestServer {
 
     @Test
     void contextLoads() {
     }
+
+
 
     @Resource
     private CuratorFramework zkClient;
 
 
     @Test
-    public void testZkClient() {
+    void testZkClient() {
 
         try {
             zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath("/node2/00001");
@@ -34,8 +35,5 @@ class ExampleServerApplicationTests {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
-
 }
