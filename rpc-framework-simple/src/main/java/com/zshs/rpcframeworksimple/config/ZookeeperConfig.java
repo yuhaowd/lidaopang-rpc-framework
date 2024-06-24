@@ -1,7 +1,7 @@
-package com.zshs.rpcframeworksimple.registry.zk;
+package com.zshs.rpcframeworksimple.config;
 
 
-import com.zshs.rpcframeworksimple.config.properties.RpcRegistryZkProperties;
+import com.zshs.rpcframeworksimple.properties.RpcRegistryZkProperties;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;

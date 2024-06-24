@@ -1,4 +1,4 @@
-package com.zshs.rpcframeworksimple.config.properties;
+package com.zshs.rpcframeworksimple.properties;
 
 
 import lombok.Data;

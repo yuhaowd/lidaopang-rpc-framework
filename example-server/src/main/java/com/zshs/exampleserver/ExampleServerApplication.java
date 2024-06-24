@@ -1,6 +1,5 @@
 package com.zshs.exampleserver;
 
-import com.zshs.rpcframeworksimple.remoting.transport.socket.RpcServerDemo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

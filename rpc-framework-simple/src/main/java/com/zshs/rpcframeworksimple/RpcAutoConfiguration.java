@@ -1,6 +1,6 @@
 package com.zshs.rpcframeworksimple;
 
-import com.zshs.rpcframeworksimple.config.properties.RpcServerProperties;
+import com.zshs.rpcframeworksimple.properties.RpcServerProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

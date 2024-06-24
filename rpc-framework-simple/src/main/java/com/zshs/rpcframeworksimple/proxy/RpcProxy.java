@@ -25,9 +25,6 @@ public class RpcProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        // 获取接口的全限定名
-        String interfaceName = method.getDeclaringClass().getName();
-        log.info("interfaceName:{}", interfaceName);
         // 获取方法名
         String methodName = method.getName();
         log.info("methodName:{}", methodName);
@@ -46,7 +43,6 @@ public class RpcProxy implements InvocationHandler {
         RpcClient rpcClient = new RpcClient();
         log.info("addr: {}", this.inetSocketAddress.getAddress().getHostAddress());
         RpcResponse<String> result = (RpcResponse<String>) rpcClient.send(rpcRequest, this.inetSocketAddress.getAddress().getHostAddress(), this.inetSocketAddress.getPort());
-
         return result.getData();
     }
 

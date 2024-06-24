@@ -1,7 +1,7 @@
 package com.zshs.rpcframeworksimple.registry.zk.impl;
 
 import com.zshs.rpcframeworksimple.registry.zk.ServiceRegistry;
-import com.zshs.rpcframeworksimple.registry.zk.util.ZookeeperUtil;
+import com.zshs.rpcframeworksimple.util.ZookeeperUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.stereotype.Service;

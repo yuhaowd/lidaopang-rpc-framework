@@ -1,4 +1,4 @@
-package com.zshs.rpcframeworksimple.registry.zk.util;
+package com.zshs.rpcframeworksimple.util;
 
 
 import com.zshs.rpcframeworkcommon.enums.RpcConfigEnum;

@@ -14,15 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController {
 
-    @RpcReference(value = HelloService.class, implementation = "com.zshs.exampleserver.service.impl.HelloServiceImpl")
+    @RpcReference(interfaceClass = HelloService.class, interfaceName = "com.zshs.exampleserver.service.impl.HelloServiceImpl", group = "lidaopang", version = "1.0.0")
     private HelloService helloService;
 
-    @RpcReference(value = HelloService.class, implementation = "com.zshs.exampleserver.service.impl.HiServiceImpl")
+    @RpcReference(interfaceClass = HelloService.class, interfaceName = "com.zshs.exampleserver.service.impl.HiServiceImpl", group = "lidaopang", version = "1.0.0")
     private HelloService hiService;
 
     @GetMapping("/hello")
     public String sayHello(String name) {
-
         String s = helloService.sayHello(name);
         log.info("receive from server result: {}", s);
 

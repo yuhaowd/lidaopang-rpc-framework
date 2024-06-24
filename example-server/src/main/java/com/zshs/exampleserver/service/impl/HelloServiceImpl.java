@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@RpcService
+@RpcService(group = "lidaopang", version = "1.0.0")
 public class HelloServiceImpl implements HelloService {
 
     @Override

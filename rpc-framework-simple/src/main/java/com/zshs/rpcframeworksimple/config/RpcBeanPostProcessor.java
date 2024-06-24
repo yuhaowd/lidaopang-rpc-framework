@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
 
 @Component
 @Slf4j
-public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
+public class RpcBeanPostProcessor implements BeanPostProcessor {
 
     @Resource
     private ZkServiceRegistry zkServiceRegistry;
@@ -36,11 +36,6 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
     private int port;
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-
-    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
         // 处理RpcService注解
@@ -51,50 +46,55 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
             log.info("beanName: " + beanName);
             // 使用类的全限定名作为服务名称
             String serviceName = beanClass.getName();
+            RpcService rpcService = beanClass.getAnnotation(RpcService.class);
+            String group = rpcService.group();
+            String version = rpcService.version();
+            // 节点的路径
+            serviceName = group + "/" + version + "/" + serviceName;
             // 获取服务的ip地址
-//            String ipAddress = NetworkUtil.getLocalIpAddress();
-
+            String ipAddress = NetworkUtil.getLocalIpAddress();
             InetSocketAddress address = new InetSocketAddress("127.0.0.1", port); // 你需要根据实际情况获取地址
             // 将服务注册到 ServiceRegistry
-//            String path = name + "/" + serviceName;
             zkServiceRegistry.registerService(serviceName, address);
             log.info("Registered service: " + serviceName);
         }
-
         // 处理RpcReference注解
         Field[] fields = bean.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(RpcReference.class)) {
                 RpcReference rpcReference = field.getAnnotation(RpcReference.class);
-                Class<?> serviceClass = rpcReference.value();
-                String implementation = rpcReference.implementation();
+                Class<?> serviceClass = rpcReference.interfaceClass();
+                String interfaceName = rpcReference.interfaceName();
+                String group = rpcReference.group();
+                String version = rpcReference.version();
+                String serviceName = group + "/" + version + "/" + interfaceName;
                 Object proxy;
-                if (!implementation.isEmpty()) {
+                if (!interfaceName.isEmpty()) {
                     try {
-                        Class<?> implClass = Class.forName(implementation);
+                        Class<?> implClass = Class.forName(interfaceName);
                         log.info("Creating proxy for service: " + implClass.getName());
-                        InetSocketAddress serviceAddress = zkServiceDiscovery.lookupService(implClass.getName());
-
+                        InetSocketAddress serviceAddress = zkServiceDiscovery.lookupService(serviceName);
                         if (serviceAddress == null) {
-                            throw new BeansException("Service not found: " + serviceClass.getName()) {};
+                            throw new BeansException("Service not found: " + serviceClass.getName()) {
+                            };
                         }
                         proxy = RpcProxy.createProxy(serviceClass, implClass, serviceAddress);
                     } catch (ClassNotFoundException e) {
-                        throw new BeansException("Implementation class not found: " + implementation, e) {};
+                        throw new BeansException("Implementation class not found: " + interfaceName, e) {
+                        };
                     }
                 } else {
                     proxy = RpcProxy.createProxy(serviceClass, null, null);
                 }
-
                 field.setAccessible(true);
                 try {
                     field.set(bean, proxy);
                 } catch (IllegalAccessException e) {
-                    throw new BeansException("Failed to inject RPC proxy", e) {};
+                    throw new BeansException("Failed to inject RPC proxy", e) {
+                    };
                 }
             }
         }
         return bean;
-
     }
 }

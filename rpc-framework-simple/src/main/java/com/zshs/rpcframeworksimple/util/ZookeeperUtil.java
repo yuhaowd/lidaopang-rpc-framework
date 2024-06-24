@@ -1,4 +1,4 @@
-package com.zshs.rpcframeworksimple.registry.zk.util;
+package com.zshs.rpcframeworksimple.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.curator.framework.CuratorFramework;
@@ -12,14 +12,11 @@ public class ZookeeperUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private ZookeeperUtil() {
-        // Utility class
-    }
 
     public static void createNode(CuratorFramework client, String path, byte[] data) throws Exception {
         client.create()
                 .creatingParentsIfNeeded()
-                .withMode(CreateMode.PERSISTENT)
+                .withMode(CreateMode.EPHEMERAL)
                 .forPath(path, data);
     }
 
