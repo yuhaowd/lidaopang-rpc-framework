@@ -20,6 +20,8 @@ public class ZkServiceRegistry implements ServiceRegistry {
     @Resource
     private CuratorFramework zkClient;
 
+    private boolean shutdownHookRegistered = false;
+
     @Override
     public void registerService(String rpcServiceName, InetSocketAddress inetSocketAddress) {
         try {
@@ -33,6 +35,29 @@ public class ZkServiceRegistry implements ServiceRegistry {
 
             // 将服务地址添加到地址列表中
             ZookeeperUtil.addAddressToNode(zkClient, servicePath, address);
+            // 注册优雅关闭钩子
+            log.info("注册  {}  节点的删除钩子", rpcServiceName);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    log.info("-------------开始删除  {}  节点-------------", servicePath);
+                    ZookeeperUtil.deleteNode(zkClient, servicePath, address);
+                    log.info("节点  {}  删除成功", servicePath);
+                } catch (Exception e) {
+                    log.info("-------------节点  {}  删除失败-------------", servicePath);
+                }
+            }));
+            // 使用双重锁保证只注册一次
+            /**
+             * 双重检查锁
+             * if (!shutdownHookRegistered) {
+             *                 synchronized (this) {
+             *                     if (!shutdownHookRegistered) {
+             *
+             *                         shutdownHookRegistered = true;
+             *                     }
+             *                 }
+             *             }
+             */
 
             log.info("Service registered: {} -> {}", rpcServiceName, address);
         } catch (Exception e) {

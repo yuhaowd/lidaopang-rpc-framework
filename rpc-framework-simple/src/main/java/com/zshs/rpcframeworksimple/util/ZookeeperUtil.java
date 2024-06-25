@@ -16,14 +16,26 @@ public class ZookeeperUtil {
     public static void createNode(CuratorFramework client, String path, byte[] data) throws Exception {
         client.create()
                 .creatingParentsIfNeeded()
-                .withMode(CreateMode.EPHEMERAL)
+                .withMode(CreateMode.PERSISTENT)
                 .forPath(path, data);
     }
 
-    public static void deleteNode(CuratorFramework client, String path) throws Exception {
-        client.delete()
-                .deletingChildrenIfNeeded()
-                .forPath(path);
+    public static void deleteNode(CuratorFramework client, String path, String address) throws Exception {
+
+        byte[] data = getNodeData(client, path);
+        List<String> addresses;
+
+        if (data != null && data.length > 0) {
+            addresses = objectMapper.readValue(data, List.class);
+        } else {
+            addresses = new ArrayList<>();
+        }
+
+        // 从addresses列表中，删除address
+        addresses.remove(address);
+
+        byte[] newData = objectMapper.writeValueAsBytes(addresses);
+        setNodeData(client, path, newData);
     }
 
     public static byte[] getNodeData(CuratorFramework client, String path) throws Exception {
