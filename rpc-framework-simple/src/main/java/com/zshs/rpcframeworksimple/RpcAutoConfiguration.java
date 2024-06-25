@@ -15,13 +15,11 @@ import java.net.ServerSocket;
 @Slf4j
 public class RpcAutoConfiguration {
 
-
     @Resource
     private RpcServerProperties properties;
 
     @Bean
     public ServerSocket getServerSocket() {
-
         try {
             return new ServerSocket(properties.getPort());
         } catch (IOException e) {

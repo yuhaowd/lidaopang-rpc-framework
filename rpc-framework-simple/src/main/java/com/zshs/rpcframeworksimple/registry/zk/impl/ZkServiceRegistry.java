@@ -5,7 +5,6 @@ import com.zshs.rpcframeworksimple.util.ZookeeperUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import java.net.InetSocketAddress;
 
@@ -32,7 +31,6 @@ public class ZkServiceRegistry implements ServiceRegistry {
             if (zkClient.checkExists().forPath(servicePath) == null) {
                 ZookeeperUtil.createNode(zkClient, servicePath, new byte[0]);
             }
-
             // 将服务地址添加到地址列表中
             ZookeeperUtil.addAddressToNode(zkClient, servicePath, address);
             // 注册优雅关闭钩子

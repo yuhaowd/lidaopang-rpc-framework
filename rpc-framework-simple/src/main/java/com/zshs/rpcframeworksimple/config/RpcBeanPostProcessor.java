@@ -73,18 +73,14 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
                     try {
                         Class<?> implClass = Class.forName(interfaceName);
                         log.info("Creating proxy for service: " + implClass.getName());
-                        InetSocketAddress serviceAddress = zkServiceDiscovery.lookupService(serviceName);
-                        if (serviceAddress == null) {
-                            throw new BeansException("Service not found: " + serviceClass.getName()) {
-                            };
-                        }
-                        proxy = RpcProxy.createProxy(serviceClass, implClass, serviceAddress);
+
+                        proxy = RpcProxy.createProxy(serviceClass, implClass, zkServiceDiscovery, serviceName);
                     } catch (ClassNotFoundException e) {
                         throw new BeansException("Implementation class not found: " + interfaceName, e) {
                         };
                     }
                 } else {
-                    proxy = RpcProxy.createProxy(serviceClass, null, null);
+                    proxy = RpcProxy.createProxy(serviceClass, null, null, null);
                 }
                 field.setAccessible(true);
                 try {
