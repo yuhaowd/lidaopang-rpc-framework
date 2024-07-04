@@ -2,6 +2,8 @@ package com.zshs.exampleserver;
 
 
 
+import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
+import com.zshs.rpcframeworksimple.remoting.transport.netty.client.RpcNettyClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -13,6 +15,9 @@ import javax.annotation.Resource;
 
 @SpringBootTest
 class ExampleServerApplicationTests {
+
+    @Resource
+    private RpcNettyClient rpcNettyClient;
 
     @Test
     void contextLoads() {
@@ -34,6 +39,17 @@ class ExampleServerApplicationTests {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+
+    }
+
+    @Test
+    public void testRpcNettyClient() {
+
+
+        String serviceName = "lidaopang/" + "1.0.0/" + "com.zshs.exampleserver.service.impl.HelloServiceImpl";
+        RpcRequest rpcRequest = RpcRequest.builder().serviceName(serviceName).build();
+        rpcNettyClient.sendRpcRequest(rpcRequest);
 
 
     }

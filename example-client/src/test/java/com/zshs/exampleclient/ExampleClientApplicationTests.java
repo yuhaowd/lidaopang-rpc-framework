@@ -3,6 +3,8 @@ package com.zshs.exampleclient;
 import com.zshs.exampleclient.service.UserService;
 
 import com.zshs.exampleclient.service.impl.UserServiceImpl;
+import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
+import com.zshs.rpcframeworksimple.remoting.transport.netty.client.RpcNettyClient;
 import io.netty.channel.Channel;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,9 +15,12 @@ import javax.annotation.Resource;
 @SpringBootTest
 class ExampleClientApplicationTests {
 
-
     @Resource
-    private Channel channel;
+    private RpcNettyClient rpcNettyClient;
+
+
+//    @Resource
+//    private Channel channel;
 
 
     @Test
@@ -33,8 +38,13 @@ class ExampleClientApplicationTests {
 
     @Test
     public void testRpcNettyClient() {
-        System.out.println(channel);
-        channel.writeAndFlush("hello netty!");
+
+
+        String serviceName = "lidaopang/" + "1.0.0/" + "com.zshs.exampleserver.service.impl.HelloServiceImpl";
+        RpcRequest rpcRequest = RpcRequest.builder().serviceName(serviceName).build();
+        rpcNettyClient.sendRpcRequest(rpcRequest);
+
+
     }
 
 

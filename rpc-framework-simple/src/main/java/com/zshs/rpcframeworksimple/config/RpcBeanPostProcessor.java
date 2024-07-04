@@ -32,7 +32,7 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
     private String name;
 
     // socketServer端口
-    @Value("${rpc.server.port}")
+    @Value("${rpc.server.netty.port}")
     private int port;
 
     @Override

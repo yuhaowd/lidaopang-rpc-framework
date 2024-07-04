@@ -44,6 +44,7 @@ public class RpcProxy implements InvocationHandler {
         // 封装请求
         RpcRequest rpcRequest = RpcRequest.builder()
                 .interfaceName(interfaceName)
+                .serviceName(serviceName)
                 .methodName(methodName)
                 .parameters(parameters)
                 .paramTypes(parameterTypes)

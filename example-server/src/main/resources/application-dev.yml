@@ -6,8 +6,12 @@ server:
 
 rpc:
   server:
-    port: 8888 # socketServer端口
-    host: 127.0.0.1 # socketServer地址
+    netty:
+      host: 127.0.0.1
+      port: 8888
+    socket:
+      port: 7777 # Server端口
+      host: 127.0.0.1 # Server地址
     registry:
       zookeeper:
         address: 192.168.170.129:2181

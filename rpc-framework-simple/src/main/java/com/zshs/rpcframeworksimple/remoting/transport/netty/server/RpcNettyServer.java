@@ -1,5 +1,6 @@
 package com.zshs.rpcframeworksimple.remoting.transport.netty.server;
 
+import com.zshs.rpcframeworksimple.properties.RpcNettyProperties;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -7,6 +8,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 /**
  * @ClassName RpcNettyServer
@@ -15,13 +19,15 @@ import lombok.extern.slf4j.Slf4j;
  * @Date 2024/7/4 上午9:54
  * @Version 1.0
  */
-
+@Service
 @Slf4j
 public class RpcNettyServer {
 
+    @Resource
+    private RpcNettyProperties rpcNettyProperties;
 
-    public static void main(String[] args) {
-
+    @PostConstruct
+    public void startServer() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -41,16 +47,12 @@ public class RpcNettyServer {
                             });
                         }
                     });
-
             ChannelFuture f = null;
-            f = b.bind(8081).sync();
-
-            f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            f = b.bind(rpcNettyProperties.getHost(), rpcNettyProperties.getPort());
+            f.channel().closeFuture();
         } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+//            bossGroup.shutdownGracefully();
+//            workerGroup.shutdownGracefully();
         }
     }
 }

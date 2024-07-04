@@ -1,6 +1,6 @@
 package com.zshs.rpcframeworksimple;
 
-import com.zshs.rpcframeworksimple.properties.RpcServerProperties;
+import com.zshs.rpcframeworksimple.properties.RpcSocketProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,12 +16,12 @@ import java.net.ServerSocket;
 public class RpcAutoConfiguration {
 
     @Resource
-    private RpcServerProperties properties;
+    private RpcSocketProperties rpcSocketProperties;
 
     @Bean
     public ServerSocket getServerSocket() {
         try {
-            return new ServerSocket(properties.getPort());
+            return new ServerSocket(rpcSocketProperties.getPort());
         } catch (IOException e) {
             log.info("ServerSocket Bean 创建失败");
         }

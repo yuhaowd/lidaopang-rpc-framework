@@ -1,8 +1,6 @@
 package com.zshs.rpcframeworksimple.config;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -25,33 +23,20 @@ public class NettyChannelConfig {
 
 
     @Bean
-    public Channel channel() {
+    public Bootstrap bootstrap() {
         NioEventLoopGroup group = new NioEventLoopGroup();
-        Channel channel = null;
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ChannelPipeline p = socketChannel.pipeline();
-                            p.addLast(new StringEncoder());
-                        }
-                    });
+        Bootstrap bootstrap = new Bootstrap();
 
-            // 连接服务器
-            ChannelFuture future = bootstrap.connect("localhost", 8081).sync();
+        bootstrap.group(group)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        ChannelPipeline p = socketChannel.pipeline();
+                        p.addLast(new StringEncoder());
+                    }
+                });
+        return bootstrap;
 
-            // 获取 Channel 对象
-            channel = future.channel();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            group.shutdownGracefully();
-        }
-        return channel;
     }
-
 }
