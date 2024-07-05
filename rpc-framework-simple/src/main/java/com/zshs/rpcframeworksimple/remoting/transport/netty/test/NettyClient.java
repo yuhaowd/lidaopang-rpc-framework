@@ -1,55 +1,65 @@
 package com.zshs.rpcframeworksimple.remoting.transport.netty.test;
 
+import com.sun.xml.internal.stream.util.BufferAllocator;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.util.Scanner;
+
+
+@Slf4j
 public class NettyClient {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         NioEventLoopGroup group = new NioEventLoopGroup();
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ChannelPipeline p = socketChannel.pipeline();
-                            p.addLast(new StringEncoder());
-                        }
-                    });
-
-            // 连接服务器
-            ChannelFuture future = bootstrap.connect("localhost",8087).sync();
-
-            // 获取 Channel 对象
-            Channel channel = future.channel();
-
-            // 发送消息
-            channel.writeAndFlush("Hello, Netty!").addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
-                        System.out.println("Message sent successfully");
-                    } else {
-                        System.err.println("Message send failed");
-                        future.cause().printStackTrace();
+        Channel channel = new Bootstrap()
+                .group(group)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<NioSocketChannel>() {
+                    @Override
+                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                        ch.pipeline()
+                                .addLast(new StringEncoder())
+                                .addLast(new LoggingHandler(LogLevel.INFO))
+                                .addLast(new ChannelInboundHandlerAdapter(){
+                                    @Override
+                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                                        ByteBuf buf = (ByteBuf) msg;
+                                        log.info("receive from server: {}",buf.toString(Charset.defaultCharset()));
+                                    }
+                                });
                     }
-                    // Close the connection after the message is sent
+                })
+                .connect(new InetSocketAddress("localhost", 8081))
+                .sync()
+                .channel();
+
+        new Thread(()->{
+            Scanner sc = new Scanner(System.in);
+            while (true) {
+                String line = sc.nextLine();
+                if ("q".equals(line)) {
                     channel.close();
+
+                    break;
                 }
-            });
+                channel.writeAndFlush(Unpooled.copiedBuffer(line, Charset.defaultCharset()));
+            }
+        },"input").start();
 
-            // 等待关闭连接
-            channel.closeFuture().sync();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            group.shutdownGracefully();
-        }
+        channel.closeFuture().sync();
+        log.info("退出之后的逻辑");
+        group.shutdownGracefully();
     }
 }

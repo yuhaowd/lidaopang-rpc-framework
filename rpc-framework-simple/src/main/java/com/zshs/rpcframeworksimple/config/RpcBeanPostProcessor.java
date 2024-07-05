@@ -7,7 +7,9 @@ import com.zshs.rpcframeworksimple.annotation.RpcService;
 import com.zshs.rpcframeworksimple.proxy.RpcProxy;
 import com.zshs.rpcframeworksimple.registry.zk.impl.ZkServiceDiscovery;
 import com.zshs.rpcframeworksimple.registry.zk.impl.ZkServiceRegistry;
+import com.zshs.rpcframeworksimple.remoting.transport.netty.client.RpcNettyClient;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.common.util.report.qual.ReportOverride;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -26,6 +28,9 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
 
     @Resource
     private ZkServiceDiscovery zkServiceDiscovery;
+
+    @Resource
+    private RpcNettyClient rpcNettyClient;
 
 
     @Value("${spring.application.name}")
@@ -74,13 +79,13 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
                         Class<?> implClass = Class.forName(interfaceName);
                         log.info("Creating proxy for service: " + implClass.getName());
 
-                        proxy = RpcProxy.createProxy(serviceClass, implClass, zkServiceDiscovery, serviceName);
+                        proxy = RpcProxy.createProxy(serviceClass, implClass, zkServiceDiscovery, serviceName, rpcNettyClient);
                     } catch (ClassNotFoundException e) {
                         throw new BeansException("Implementation class not found: " + interfaceName, e) {
                         };
                     }
                 } else {
-                    proxy = RpcProxy.createProxy(serviceClass, null, null, null);
+                    proxy = RpcProxy.createProxy(serviceClass, null, null, null, null);
                 }
                 field.setAccessible(true);
                 try {

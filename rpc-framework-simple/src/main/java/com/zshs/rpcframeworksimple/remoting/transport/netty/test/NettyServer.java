@@ -1,48 +1,53 @@
 package com.zshs.rpcframeworksimple.remoting.transport.netty.test;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class NettyServer {
     private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
 
     public static void main(String[] args) throws InterruptedException {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
+        NioEventLoopGroup group = new NioEventLoopGroup();
+        ChannelFuture future = new ServerBootstrap()
+                .group(group)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+                .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        ChannelPipeline p = socketChannel.pipeline();
-                        p.addLast(new StringDecoder());
-                        p.addLast(new ChannelInboundHandlerAdapter() {
+                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                        ch.pipeline()
+                                .addLast(new LoggingHandler(LogLevel.INFO))
+                                .addLast(new ChannelInboundHandlerAdapter() {
                             @Override
-                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                                log.info("server receive: {}", msg);
+                            public void channelRead(ChannelHandlerContext ctx, Object msg) {
+                                ByteBuf buf = (ByteBuf) msg;
+                                String received = buf.toString(Charset.defaultCharset());
+                                log.info("receive from client:{}", received);
+
+                                // 处理数据并发送回客户端
+                                String response = "Processed: " + received;
+                                ctx.writeAndFlush(Unpooled.copiedBuffer(response, Charset.defaultCharset()));
                             }
                         });
                     }
-                });
+                })
+                .bind(8081).sync();
 
-            ChannelFuture f = b.bind(8081).sync();
-            f.channel().closeFuture().sync();
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
+        future.channel().closeFuture().sync();
+        log.info("开始关闭");
     }
 }
