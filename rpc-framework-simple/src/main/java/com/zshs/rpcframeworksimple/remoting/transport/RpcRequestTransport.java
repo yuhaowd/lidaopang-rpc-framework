@@ -2,6 +2,7 @@ package com.zshs.rpcframeworksimple.remoting.transport;
 
 import com.zshs.rpcframeworkcommon.extension.SPI;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
+import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 
 /**
  * send RpcRequest。
@@ -17,5 +18,5 @@ public interface RpcRequestTransport {
      * @param rpcRequest message body
      * @return data from server
      */
-    Object sendRpcRequest(RpcRequest rpcRequest);
+    RpcResponse sendRpcRequest(RpcRequest rpcRequest);
 }

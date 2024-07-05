@@ -1,11 +1,10 @@
 package com.zshs.rpcframeworksimple.remoting.transport.socket;
 
-import com.zshs.rpcframeworkcommon.registry.ServiceRegistry;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -19,9 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-@Component
+@Service
 @Slf4j
-public class RpcServer {
+public class RpcSocketServer {
 
     @Resource
     private ServerSocket serverSocket;

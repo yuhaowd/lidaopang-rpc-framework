@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @Version 1.0
  */
 
-@Service
 @Slf4j
 public class RpcNettyClient implements RpcRequestTransport {
 

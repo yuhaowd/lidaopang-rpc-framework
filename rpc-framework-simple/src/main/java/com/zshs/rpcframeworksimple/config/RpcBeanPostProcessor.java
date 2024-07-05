@@ -7,6 +7,7 @@ import com.zshs.rpcframeworksimple.annotation.RpcService;
 import com.zshs.rpcframeworksimple.proxy.RpcProxy;
 import com.zshs.rpcframeworksimple.registry.zk.impl.ZkServiceDiscovery;
 import com.zshs.rpcframeworksimple.registry.zk.impl.ZkServiceRegistry;
+import com.zshs.rpcframeworksimple.remoting.transport.RpcRequestTransport;
 import com.zshs.rpcframeworksimple.remoting.transport.netty.client.RpcNettyClient;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.common.util.report.qual.ReportOverride;
@@ -30,7 +31,7 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
     private ZkServiceDiscovery zkServiceDiscovery;
 
     @Resource
-    private RpcNettyClient rpcNettyClient;
+    private RpcRequestTransport rpcRequestTransport;
 
 
     @Value("${spring.application.name}")
@@ -79,7 +80,7 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
                         Class<?> implClass = Class.forName(interfaceName);
                         log.info("Creating proxy for service: " + implClass.getName());
 
-                        proxy = RpcProxy.createProxy(serviceClass, implClass, zkServiceDiscovery, serviceName, rpcNettyClient);
+                        proxy = RpcProxy.createProxy(serviceClass, implClass, zkServiceDiscovery, serviceName, rpcRequestTransport);
                     } catch (ClassNotFoundException e) {
                         throw new BeansException("Implementation class not found: " + interfaceName, e) {
                         };

@@ -3,16 +3,11 @@ package com.zshs.rpcframeworksimple.proxy;
 import com.zshs.rpcframeworksimple.registry.zk.impl.ZkServiceDiscovery;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
-import com.zshs.rpcframeworksimple.remoting.transport.netty.client.RpcNettyClient;
-import com.zshs.rpcframeworksimple.remoting.transport.socket.RpcClient;
+import com.zshs.rpcframeworksimple.remoting.transport.RpcRequestTransport;
 import lombok.extern.slf4j.Slf4j;
-
-
-import javax.annotation.Resource;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.InetSocketAddress;
 
 @Slf4j
 public class RpcProxy implements InvocationHandler {
@@ -20,14 +15,14 @@ public class RpcProxy implements InvocationHandler {
     private final String interfaceName;
     private final ZkServiceDiscovery zkServiceDiscovery;
     private final String serviceName;
-    private final RpcNettyClient rpcNettyClient;
+    private final RpcRequestTransport rpcRequestTransport;
 
 
-    public RpcProxy(String interfaceName, ZkServiceDiscovery zkServiceDiscovery, String serviceName, RpcNettyClient rpcNettyClient) {
+    public RpcProxy(String interfaceName, ZkServiceDiscovery zkServiceDiscovery, String serviceName, RpcRequestTransport rpcRequestTransport) {
         this.interfaceName = interfaceName;
         this.zkServiceDiscovery = zkServiceDiscovery;
         this.serviceName = serviceName;
-        this.rpcNettyClient = rpcNettyClient;
+        this.rpcRequestTransport = rpcRequestTransport;
     }
 
 //    @Override
@@ -76,15 +71,15 @@ public class RpcProxy implements InvocationHandler {
                 .parameters(parameters)
                 .paramTypes(parameterTypes)
                 .build();
-        RpcResponse rpcResponse = rpcNettyClient.sendRpcRequest(rpcRequest);
+        RpcResponse rpcResponse = rpcRequestTransport.sendRpcRequest(rpcRequest);
         return rpcResponse.getData();
     }
 
-    public static <T> T createProxy(Class<T> interfaceClass, Class<?> implClass, ZkServiceDiscovery zkServiceDiscovery, String serviceName, RpcNettyClient rpcNettyClient) {
+    public static <T> T createProxy(Class<T> interfaceClass, Class<?> implClass, ZkServiceDiscovery zkServiceDiscovery, String serviceName, RpcRequestTransport rpcRequestTransport) {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new RpcProxy(implClass.getName(), zkServiceDiscovery, serviceName, rpcNettyClient)
+                new RpcProxy(implClass.getName(), zkServiceDiscovery, serviceName, rpcRequestTransport)
         );
     }
 }
