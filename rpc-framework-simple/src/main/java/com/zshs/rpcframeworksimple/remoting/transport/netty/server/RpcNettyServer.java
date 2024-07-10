@@ -46,23 +46,20 @@ public class RpcNettyServer {
                 pipeline.addLast(new LoggingHandler(LogLevel.INFO))
                         .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0, 0))
                         .addLast(new RpcMessageCodec())
-                        .addLast(new ChannelInboundHandlerAdapter() {
-                    @Override
-                    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                        if (msg instanceof RpcRequest) {
-                            log.info("进入channelRead");
-                            RpcRequest rpcRequest = (RpcRequest) msg;
-                            log.info("rpcRequest : {}", rpcRequest);
-                            Object data = invokeMethod(rpcRequest);
-                            RpcResponse rpcResponse = new RpcResponse<>();
-                            rpcResponse.setData(data);
-                            log.info("rpcResponse: {}", rpcResponse);
-                            // 处理数据并发送回客户端
-                            Object RpcResponse = rpcResponse;
-                            ctx.writeAndFlush(RpcResponse);
-                         }
-                    }
-                });
+                        .addLast(new SimpleChannelInboundHandler<RpcRequest>() {
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext ctx, RpcRequest rpcRequest) throws Exception {
+                                log.info("进入channelRead");
+                                log.info("rpcRequest : {}", rpcRequest);
+                                Object data = invokeMethod(rpcRequest);
+                                RpcResponse<Object> rpcResponse = new RpcResponse<>();
+                                rpcResponse.setData(data);
+                                log.info("rpcResponse: {}", rpcResponse);
+                                // 处理数据并发送回客户端
+                                ctx.writeAndFlush(rpcResponse);
+
+                            }
+                        });
             }
         }).bind(rpcNettyProperties.getPort()).sync();
 

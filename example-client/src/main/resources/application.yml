@@ -19,6 +19,3 @@ rpc:
         address: 192.168.170.129:2181
   transport:
     type: netty
-
-
-

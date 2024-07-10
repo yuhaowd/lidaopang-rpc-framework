@@ -52,8 +52,6 @@ public class ZkServiceRegistry implements ServiceRegistry {
                 log.error("error: {}", ex.getMessage());
             }
         });
-
-
         // 使用双重锁保证只注册一次
         /**
          * 双重检查锁
@@ -66,7 +64,5 @@ public class ZkServiceRegistry implements ServiceRegistry {
          *                 }
          *             }
          */
-
-
     }
 }

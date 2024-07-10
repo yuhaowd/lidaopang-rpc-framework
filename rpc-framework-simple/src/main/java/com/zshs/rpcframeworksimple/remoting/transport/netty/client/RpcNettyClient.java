@@ -7,20 +7,20 @@ import com.zshs.rpcframeworksimple.remoting.transport.RpcRequestTransport;
 import com.zshs.rpcframeworksimple.remoting.transport.netty.codec.RpcMessageCodec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -54,19 +54,27 @@ public class RpcNettyClient implements RpcRequestTransport {
                         protected void initChannel(NioSocketChannel ch) throws Exception {
                             ch.pipeline()
                                     .addLast(new LoggingHandler(LogLevel.INFO))
-                                    .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0,0))
+                                    .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0, 0))
                                     .addLast(new RpcMessageCodec())
-                                    .addLast(new ChannelInboundHandlerAdapter(){
+                                    .addLast(new SimpleChannelInboundHandler<RpcResponse>() {
                                         @Override
-                                        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                                            if (msg instanceof RpcResponse) {
-                                                RpcResponse response = (RpcResponse) msg;
-                                                rpcResponseRef.set((response));
-                                                log.info("receive from server: {}", response);
-                                                ctx.close();
-                                            }
+                                        protected void channelRead0(ChannelHandlerContext ctx, RpcResponse rpcResponse) throws Exception {
+                                            rpcResponseRef.set((rpcResponse));
+                                            log.info("receive from server: {}", rpcResponse);
+                                            ctx.close();
                                         }
                                     });
+//                                    .addLast(new ChannelInboundHandlerAdapter(){
+//                                        @Override
+//                                        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                                            if (msg instanceof RpcResponse) {
+//                                                RpcResponse response = (RpcResponse) msg;
+//                                                rpcResponseRef.set((response));
+//                                                log.info("receive from server: {}", response);
+//                                                ctx.close();
+//                                            }
+//                                        }
+//                                    });
                         }
                     })
                     .connect("localhost", inetSocketAddress.getPort())
