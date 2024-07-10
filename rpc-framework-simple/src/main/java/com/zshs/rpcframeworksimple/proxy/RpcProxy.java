@@ -25,44 +25,19 @@ public class RpcProxy implements InvocationHandler {
         this.rpcRequestTransport = rpcRequestTransport;
     }
 
-//    @Override
-//    public Object invoke(Object proxy, Method method, Object[] args) {
-//        InetSocketAddress inetSocketAddress = zkServiceDiscovery.lookupService(serviceName);
-//        if (inetSocketAddress == null) {
-//            log.info("获取服务失败");
-//            return null;
-//        }
-//        // 获取方法名
-//        String methodName = method.getName();
-//        log.info("methodName:{}", methodName);
-//        // 获取参数类型
-//        Class<?>[] parameterTypes = method.getParameterTypes();
-//        // 获取参数列表
-//        Object[] parameters = args;
-//        // 封装请求
-//        RpcRequest rpcRequest = RpcRequest.builder()
-//                .interfaceName(interfaceName)
-//                .serviceName(serviceName)
-//                .methodName(methodName)
-//                .parameters(parameters)
-//                .paramTypes(parameterTypes)
-//                .build();
-//
-//        RpcClient rpcClient = new RpcClient();
-//        log.info("addr: {}", inetSocketAddress.getAddress().getHostAddress());
-//        RpcResponse<String> result = (RpcResponse<String>) rpcClient.send(rpcRequest, inetSocketAddress.getAddress().getHostAddress(), inetSocketAddress.getPort());
-//        return result.getData();
-//    }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         // 获取方法名
         String methodName = method.getName();
-        log.info("methodName:{}", methodName);
+        log.info("method: {}", methodName);
+
+        Class<?> returnType = method.getReturnType();
         // 获取参数类型
         Class<?>[] parameterTypes = method.getParameterTypes();
         // 获取参数列表
         Object[] parameters = args;
+
         // 封装请求
         RpcRequest rpcRequest = RpcRequest.builder()
                 .interfaceName(interfaceName)
@@ -70,6 +45,7 @@ public class RpcProxy implements InvocationHandler {
                 .methodName(methodName)
                 .parameters(parameters)
                 .paramTypes(parameterTypes)
+                .returnType(returnType)
                 .build();
         RpcResponse rpcResponse = rpcRequestTransport.sendRpcRequest(rpcRequest);
         return rpcResponse.getData();

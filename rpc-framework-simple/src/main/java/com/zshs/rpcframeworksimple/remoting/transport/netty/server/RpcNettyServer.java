@@ -3,13 +3,14 @@ package com.zshs.rpcframeworksimple.remoting.transport.netty.server;
 import com.zshs.rpcframeworksimple.properties.RpcNettyProperties;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
+import com.zshs.rpcframeworksimple.remoting.transport.netty.codec.RpcMessageCodec;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -40,22 +42,25 @@ public class RpcNettyServer {
         ChannelFuture future = new ServerBootstrap().group(group).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<NioSocketChannel>() {
             @Override
             protected void initChannel(NioSocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO)).addLast(new ChannelInboundHandlerAdapter() {
+                ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(new LoggingHandler(LogLevel.INFO))
+                        .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0, 0))
+                        .addLast(new RpcMessageCodec())
+                        .addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                        ByteBuf byteBuf = (ByteBuf) msg;
-                        RpcRequest rpcRequest = toRpcRequest(byteBuf);
-                        String data = (String) invokeMethod(rpcRequest);
-                        RpcResponse<String> rpcResponse = new RpcResponse<>();
-                        rpcResponse.setData(data);
-                        byte[] responseBytes = null;
-                        try {
-                            responseBytes = rpcResponseTO(rpcResponse);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        // 处理数据并发送回客户端
-                        ctx.writeAndFlush(Unpooled.wrappedBuffer(responseBytes));
+                        if (msg instanceof RpcRequest) {
+                            log.info("进入channelRead");
+                            RpcRequest rpcRequest = (RpcRequest) msg;
+                            log.info("rpcRequest : {}", rpcRequest);
+                            Object data = invokeMethod(rpcRequest);
+                            RpcResponse rpcResponse = new RpcResponse<>();
+                            rpcResponse.setData(data);
+                            log.info("rpcResponse: {}", rpcResponse);
+                            // 处理数据并发送回客户端
+                            Object RpcResponse = rpcResponse;
+                            ctx.writeAndFlush(RpcResponse);
+                         }
                     }
                 });
             }
@@ -122,22 +127,28 @@ public class RpcNettyServer {
         // 获取参数类型列表
         Class<?>[] parameterTypes = rpcRequest.getParamTypes();
         // 获取接口实例
-        log.info("Server receive interfaceName: {}", interfaceName);
-        log.info("Server receive methodName: {}", methodName);
-        log.info("Server receive parameters: {}", parameters);
-
         try {
             // TODO 获取对象的方式可以在优化下
             Class<?> aClass = Class.forName(interfaceName);
-            Object service = aClass.newInstance();
-//            Object service = ServiceRegistry.getService(interfaceName);
+            Object service = aClass.getDeclaredConstructor().newInstance();
             // 获取方法
             Method method = service.getClass().getMethod(methodName, parameterTypes);
             // 调用方法并返回结果
-            return method.invoke(service, parameters);
-        } catch (Exception e) {
-            log.error("Error occurred during invoking method:", e);
-            throw new RuntimeException(e);
+            Object result = method.invoke(service, parameters);
+
+
+            // 获取返回类型
+            Class<?> returnType = rpcRequest.getReturnType();
+            return result;
+        } catch (ClassNotFoundException e) {
+            log.error("Class not found: {}", interfaceName, e);
+        } catch (NoSuchMethodException e) {
+            log.error("Method not found: {} in class: {}", methodName, interfaceName, e);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            log.error("Error occurred during invoking method: {}", methodName, e);
+        } catch (ClassCastException e) {
+            log.error("Return type cast error: {}", e.getMessage(), e);
         }
+        return null;
     }
 }

@@ -6,7 +6,6 @@ import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import com.zshs.rpcframeworksimple.remoting.transport.RpcRequestTransport;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -24,14 +23,11 @@ public class RpcSocketClient implements RpcRequestTransport {
     private ZkServiceDiscovery zkServiceDiscovery;
 
 
-
-
-
     @Override
     public RpcResponse sendRpcRequest(RpcRequest rpcRequest) {
         // 寻找服务
         String serviceName = rpcRequest.getServiceName();
-        InetSocketAddress inetSocketAddress = zkServiceDiscovery.lookupService(serviceName);
+        InetSocketAddress inetSocketAddress = zkServiceDiscovery.lookupService(serviceName, "netty");
         //1. 创建Socket对象并且指定服务器的地址和端口号
         try (Socket socket = new Socket("localhost", 7776)) {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());

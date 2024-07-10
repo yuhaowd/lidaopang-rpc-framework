@@ -19,16 +19,15 @@ import java.util.Random;
 public class ZkServiceDiscovery implements ServiceDiscovery {
 
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final Random random = new Random();
     @Resource
     private CuratorFramework zkClient;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final Random random = new Random();
-
     @Override
-    public InetSocketAddress lookupService(String rpcServiceName) {
+    public InetSocketAddress lookupService(String rpcServiceName, String serverName) {
         try {
-            String servicePath = "/services/" + rpcServiceName;
+            String servicePath = "/services/" + serverName + "/" + rpcServiceName;
 
             // 获取服务地址列表
             byte[] data = zkClient.getData().forPath(servicePath);

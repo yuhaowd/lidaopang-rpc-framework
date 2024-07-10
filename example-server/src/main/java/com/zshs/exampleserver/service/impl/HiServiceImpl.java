@@ -3,9 +3,9 @@ package com.zshs.exampleserver.service.impl;
 
 import com.zshs.exampleserver.service.HelloService;
 import com.zshs.rpcframeworksimple.annotation.RpcService;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RpcService(group = "lidaopang", version = "1.0.0")
 public class HiServiceImpl implements HelloService {
     @Override

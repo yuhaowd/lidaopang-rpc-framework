@@ -19,6 +19,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -39,7 +43,10 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
 
     // socketServer端口
     @Value("${rpc.server.netty.port}")
-    private int port;
+    private int nettyPort;
+
+    @Value("${rpc.server.socket.port}")
+    private int socketPort;
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -59,9 +66,13 @@ public class RpcBeanPostProcessor implements BeanPostProcessor {
             serviceName = group + "/" + version + "/" + serviceName;
             // 获取服务的ip地址
             String ipAddress = NetworkUtil.getLocalIpAddress();
-            InetSocketAddress address = new InetSocketAddress("127.0.0.1", port); // 你需要根据实际情况获取地址
+            InetSocketAddress nettyAddress = new InetSocketAddress("127.0.0.1", nettyPort);
+            InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", socketPort);
+            Map<String, InetSocketAddress> addressMap = new HashMap<>();
+            addressMap.put("netty", nettyAddress);
+            addressMap.put("socket", socketAddress);
             // 将服务注册到 ServiceRegistry
-            zkServiceRegistry.registerService(serviceName, address);
+            zkServiceRegistry.registerService(serviceName, addressMap);
             log.info("Registered service: " + serviceName);
         }
         // 处理RpcReference注解

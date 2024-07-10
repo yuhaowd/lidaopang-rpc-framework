@@ -4,12 +4,14 @@ import com.zshs.rpcframeworksimple.registry.zk.impl.ZkServiceDiscovery;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import com.zshs.rpcframeworksimple.remoting.transport.RpcRequestTransport;
+import com.zshs.rpcframeworksimple.remoting.transport.netty.codec.RpcMessageCodec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
@@ -35,14 +37,12 @@ public class RpcNettyClient implements RpcRequestTransport {
     @Resource
     private ZkServiceDiscovery zkServiceDiscovery;
 
-//    @Resource
-//    private Bootstrap bootstrap;
 
     @Override
     public RpcResponse sendRpcRequest(RpcRequest rpcRequest) {
         // 寻找服务
         String serviceName = rpcRequest.getServiceName();
-        InetSocketAddress inetSocketAddress = zkServiceDiscovery.lookupService(serviceName);
+        InetSocketAddress inetSocketAddress = zkServiceDiscovery.lookupService(serviceName, "netty");
         NioEventLoopGroup group = new NioEventLoopGroup();
         AtomicReference<RpcResponse> rpcResponseRef = new AtomicReference<>();
         try {
@@ -53,15 +53,18 @@ public class RpcNettyClient implements RpcRequestTransport {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new StringEncoder())
                                     .addLast(new LoggingHandler(LogLevel.INFO))
+                                    .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0,0))
+                                    .addLast(new RpcMessageCodec())
                                     .addLast(new ChannelInboundHandlerAdapter(){
                                         @Override
                                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                                            ByteBuf buf = (ByteBuf) msg;
-                                            rpcResponseRef.set(toRpcResponse(buf));
-                                            log.info("receive from server: {}",buf.toString(Charset.defaultCharset()));
-                                            ctx.close();
+                                            if (msg instanceof RpcResponse) {
+                                                RpcResponse response = (RpcResponse) msg;
+                                                rpcResponseRef.set((response));
+                                                log.info("receive from server: {}", response);
+                                                ctx.close();
+                                            }
                                         }
                                     });
                         }
@@ -69,20 +72,15 @@ public class RpcNettyClient implements RpcRequestTransport {
                     .connect("localhost", inetSocketAddress.getPort())
                     .sync()
                     .channel();
-            // 序列化RpcRequest 对象
-            byte[] rpcRequestBytes = rpcRequestTO(rpcRequest);
-            // 将字节数组包装成 ByteBuf 并发送
-            ByteBuf buffer = Unpooled.copiedBuffer(rpcRequestBytes);
-            channel.writeAndFlush(buffer);
+            channel.writeAndFlush(rpcRequest);
             channel.closeFuture().sync();
             log.info("关闭客户端");
-            group.shutdownGracefully();
+
             return rpcResponseRef.get();
         } catch (InterruptedException e) {
             log.info("连接出错");
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.info("序列化出错");
+        } finally {
+            group.shutdownGracefully();
         }
         return null;
     }

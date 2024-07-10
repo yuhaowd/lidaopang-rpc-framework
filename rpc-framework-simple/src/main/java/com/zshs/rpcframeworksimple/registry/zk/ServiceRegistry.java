@@ -1,17 +1,18 @@
 package com.zshs.rpcframeworksimple.registry.zk;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 /**
  * 服务注册
  */
 public interface ServiceRegistry {
+
     /**
      * 注册服务到注册中心
-     *
-     * @param rpcServiceName    完整的服务名称（class name+group+version）
-     * @param inetSocketAddress 远程服务地址
+     * @param rpcServiceName
+     * @param addressMap
      */
-    void registerService(String rpcServiceName, InetSocketAddress inetSocketAddress);
+    void registerService(String rpcServiceName, Map<String, InetSocketAddress> addressMap);
 
 }
