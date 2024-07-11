@@ -8,11 +8,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface RpcReference {
-    Class<?> interfaceClass() default void.class;
 
-    String interfaceName() default "";
+    String implementation() default "";
 
-    String version() default "";
+    String version() default "1.0.0";
 
-    String group() default "";
+    String group() default "lidaopang";
 }

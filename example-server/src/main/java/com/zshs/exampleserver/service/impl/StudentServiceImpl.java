@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  * @Version 1.0
  */
 @Service
-@RpcService(group = "lidaopang", version = "1.0.0")
+@RpcService
 public class StudentServiceImpl implements StudentService {
 
 

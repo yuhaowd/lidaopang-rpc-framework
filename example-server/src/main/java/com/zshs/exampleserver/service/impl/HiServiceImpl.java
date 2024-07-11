@@ -6,7 +6,7 @@ import com.zshs.rpcframeworksimple.annotation.RpcService;
 import org.springframework.stereotype.Service;
 
 @Service
-@RpcService(group = "lidaopang", version = "1.0.0")
+//@RpcService
 public class HiServiceImpl implements HelloService {
     @Override
     public String sayHello(String name) {

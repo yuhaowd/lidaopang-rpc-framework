@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController {
 
-    @RpcReference(interfaceClass = HelloService.class, interfaceName = "com.zshs.exampleserver.service.impl.HelloServiceImpl", group = "lidaopang", version = "1.0.0")
+    @RpcReference
     private HelloService helloService;
 
-    @RpcReference(interfaceClass = HelloService.class, interfaceName = "com.zshs.exampleserver.service.impl.HiServiceImpl", group = "lidaopang", version = "1.0.0")
+//    @RpcReference(implementation = "com.zshs.exampleserver.service.impl.HiServiceImpl", group = "lidaopang", version = "1.0.0")
     private HelloService hiService;
 
-    @RpcReference(interfaceClass = StudentService.class, interfaceName = "com.zshs.exampleserver.service.impl.StudentServiceImpl", group = "lidaopang", version = "1.0.0")
+    @RpcReference(implementation = "com.zshs.exampleserver.service.impl.StudentServiceImpl", group = "lidaopang", version = "1.0.0")
     private StudentService studentService;
 
 

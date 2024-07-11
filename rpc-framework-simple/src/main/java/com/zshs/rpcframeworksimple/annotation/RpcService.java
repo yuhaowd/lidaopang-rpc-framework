@@ -9,12 +9,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface RpcService {
 
-    Class<?> interfaceClass() default void.class;
+//    Class<?> interfaceClass() default void.class;
 
-    String interfaceName() default "";
+//    String interfaceName() default "";
 
-    String version() default "";
+    String version() default "1.0.0";
 
-    String group() default "";
+    String group() default "lidaopang";
 
 }

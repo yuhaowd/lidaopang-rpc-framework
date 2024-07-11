@@ -4,6 +4,7 @@ import com.zshs.rpcframeworksimple.properties.RpcNettyProperties;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import com.zshs.rpcframeworksimple.remoting.transport.netty.codec.RpcMessageCodec;
+import com.zshs.rpcframeworksimple.util.ThreadLocalUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -116,7 +117,8 @@ public class RpcNettyServer {
     // 执行目标方法
     public Object invokeMethod(RpcRequest rpcRequest) {
         // 获取接口名
-        String interfaceName = rpcRequest.getInterfaceName();
+        String implName = rpcRequest.getServiceImplName();
+        log.info("");
         // 获取方法名
         String methodName = rpcRequest.getMethodName();
         // 获取参数列表
@@ -126,7 +128,7 @@ public class RpcNettyServer {
         // 获取接口实例
         try {
             // TODO 获取对象的方式可以在优化下
-            Class<?> aClass = Class.forName(interfaceName);
+            Class<?> aClass = Class.forName(implName);
             Object service = aClass.getDeclaredConstructor().newInstance();
             // 获取方法
             Method method = service.getClass().getMethod(methodName, parameterTypes);
@@ -138,9 +140,9 @@ public class RpcNettyServer {
             Class<?> returnType = rpcRequest.getReturnType();
             return result;
         } catch (ClassNotFoundException e) {
-            log.error("Class not found: {}", interfaceName, e);
+            log.error("Class not found: {}", implName, e);
         } catch (NoSuchMethodException e) {
-            log.error("Method not found: {} in class: {}", methodName, interfaceName, e);
+            log.error("Method not found: {} in class: {}", methodName, implName, e);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.error("Error occurred during invoking method: {}", methodName, e);
         } catch (ClassCastException e) {

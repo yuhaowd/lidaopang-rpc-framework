@@ -4,10 +4,6 @@ import lombok.*;
 
 import java.io.Serializable;
 
-/**
- * @author shuang.kou
- * @createTime 2020年05月10日 08:24:00
- */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -17,7 +13,7 @@ import java.io.Serializable;
 public class RpcRequest implements Serializable {
     private static final long serialVersionUID = 1905122041950251207L;
     private String requestId;
-    private String interfaceName;
+    private String serviceImplName;
     private String serviceName;
     private String methodName;
     private Object[] parameters;
@@ -26,7 +22,4 @@ public class RpcRequest implements Serializable {
     private String version;
     private String group;
 
-    public String getRpcServiceName() {
-        return this.getInterfaceName() + this.getGroup() + this.getVersion();
-    }
 }

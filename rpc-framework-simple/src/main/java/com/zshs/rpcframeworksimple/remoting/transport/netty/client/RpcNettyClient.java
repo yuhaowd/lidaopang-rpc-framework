@@ -5,6 +5,7 @@ import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
 import com.zshs.rpcframeworksimple.remoting.transport.RpcRequestTransport;
 import com.zshs.rpcframeworksimple.remoting.transport.netty.codec.RpcMessageCodec;
+import com.zshs.rpcframeworksimple.util.ThreadLocalUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -43,6 +44,7 @@ public class RpcNettyClient implements RpcRequestTransport {
         // 寻找服务
         String serviceName = rpcRequest.getServiceName();
         InetSocketAddress inetSocketAddress = zkServiceDiscovery.lookupService(serviceName, "netty");
+        rpcRequest.setServiceImplName(ThreadLocalUtil.get());
         NioEventLoopGroup group = new NioEventLoopGroup();
         AtomicReference<RpcResponse> rpcResponseRef = new AtomicReference<>();
         try {
@@ -64,17 +66,6 @@ public class RpcNettyClient implements RpcRequestTransport {
                                             ctx.close();
                                         }
                                     });
-//                                    .addLast(new ChannelInboundHandlerAdapter(){
-//                                        @Override
-//                                        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//                                            if (msg instanceof RpcResponse) {
-//                                                RpcResponse response = (RpcResponse) msg;
-//                                                rpcResponseRef.set((response));
-//                                                log.info("receive from server: {}", response);
-//                                                ctx.close();
-//                                            }
-//                                        }
-//                                    });
                         }
                     })
                     .connect("localhost", inetSocketAddress.getPort())

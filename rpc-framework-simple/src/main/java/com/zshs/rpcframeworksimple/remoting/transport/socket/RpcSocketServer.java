@@ -22,11 +22,9 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class RpcSocketServer {
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
     @Resource
     private ServerSocket serverSocket;
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
-
     private volatile boolean running = true;
 
 
@@ -74,7 +72,7 @@ public class RpcSocketServer {
                 RpcRequest rpcRequest = (RpcRequest) object;
                 // 进行必要的输入验证和处理
                 // 通过输出流向客户端发送响应信息
-                String o = (String)invokeMethod(rpcRequest);
+                String o = (String) invokeMethod(rpcRequest);
                 RpcResponse<String> rpcResponse = new RpcResponse<>();
                 rpcResponse.setData(o);
                 objectOutputStream.writeObject(rpcResponse);
@@ -101,7 +99,7 @@ public class RpcSocketServer {
     // 执行目标方法
     public Object invokeMethod(RpcRequest rpcRequest) {
         // 获取接口名
-        String interfaceName = rpcRequest.getInterfaceName();
+        String implName = rpcRequest.getServiceImplName();
         // 获取方法名
         String methodName = rpcRequest.getMethodName();
         // 获取参数列表
@@ -109,15 +107,15 @@ public class RpcSocketServer {
         // 获取参数类型列表
         Class<?>[] parameterTypes = rpcRequest.getParamTypes();
         // 获取接口实例
-        log.info("Server receive interfaceName: {}", interfaceName);
+        log.info("Server receive implementation: {}", implName);
         log.info("Server receive methodName: {}", methodName);
         log.info("Server receive parameters: {}", parameters);
 
         try {
             // TODO 获取对象的方式可以在优化下
-            Class<?> aClass = Class.forName(interfaceName);
+            Class<?> aClass = Class.forName(implName);
             Object service = aClass.newInstance();
-//            Object service = ServiceRegistry.getService(interfaceName);
+//            Object service = ServiceRegistry.getService(implementation);
             // 获取方法
             Method method = service.getClass().getMethod(methodName, parameterTypes);
             // 调用方法并返回结果
