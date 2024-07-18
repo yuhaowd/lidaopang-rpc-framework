@@ -53,10 +53,6 @@ public class RpcMessageCodec extends MessageToMessageCodec<ByteBuf, Object> {
         // 使用kryo来序列化
 //        KryoSerializer kryoSerializer = new KryoSerializer();
         byte[] bytes = kryoSerializer.serialize(msg);
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        ObjectOutputStream oos = new ObjectOutputStream(bos);
-//        oos.writeObject(msg);
-//        byte[] bytes = bos.toByteArray();
         
         // 8. 长度
         out.writeInt(bytes.length);
@@ -105,10 +101,5 @@ public class RpcMessageCodec extends MessageToMessageCodec<ByteBuf, Object> {
             log.info("rpcResponse: {}", rpcResponse);
             out.add(rpcResponse);
         }
-//        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-//        Object message = ois.readObject();
-
-
-
     }
 }
