@@ -2,19 +2,25 @@ package com.zshs.rpcframeworksimple.remoting.transport.netty.codec;
 
 import com.zshs.rpcframeworksimple.remoting.dto.RpcRequest;
 import com.zshs.rpcframeworksimple.remoting.dto.RpcResponse;
+import com.zshs.rpcframeworksimple.serialize.kyro.KryoSerializer;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import javax.annotation.Resource;
 import java.util.List;
 
+@Component
+@ChannelHandler.Sharable
 @Slf4j
 public class RpcMessageCodec extends MessageToMessageCodec<ByteBuf, Object> {
+
+
+    @Resource
+    private KryoSerializer kryoSerializer;
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> outList) throws Exception {
@@ -44,10 +50,13 @@ public class RpcMessageCodec extends MessageToMessageCodec<ByteBuf, Object> {
         out.writeByte(0xff);
         
         // 7. 获取内容的字节数组
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(msg);
-        byte[] bytes = bos.toByteArray();
+        // 使用kryo来序列化
+//        KryoSerializer kryoSerializer = new KryoSerializer();
+        byte[] bytes = kryoSerializer.serialize(msg);
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        ObjectOutputStream oos = new ObjectOutputStream(bos);
+//        oos.writeObject(msg);
+//        byte[] bytes = bos.toByteArray();
         
         // 8. 长度
         out.writeInt(bytes.length);
@@ -85,10 +94,21 @@ public class RpcMessageCodec extends MessageToMessageCodec<ByteBuf, Object> {
         byte[] bytes = new byte[length];
         in.readBytes(bytes, 0, length);
         // 9. 反序列化
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        Object message = ois.readObject();
-        log.info("message: {}", message);
         // 10. 添加到输出列表
-        out.add(message);
+//        KryoSerializer kryoSerializer = new KryoSerializer();
+        if (messageType == 1) {
+            RpcRequest rpcRequest = kryoSerializer.deserialize(bytes, RpcRequest.class);
+            log.info("rpcRequest: {}", rpcRequest);
+            out.add(rpcRequest);
+        } else {
+            RpcResponse rpcResponse = kryoSerializer.deserialize(bytes, RpcResponse.class);
+            log.info("rpcResponse: {}", rpcResponse);
+            out.add(rpcResponse);
+        }
+//        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+//        Object message = ois.readObject();
+
+
+
     }
 }

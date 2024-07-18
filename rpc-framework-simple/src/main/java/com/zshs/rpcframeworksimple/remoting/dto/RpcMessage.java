@@ -4,8 +4,11 @@ package com.zshs.rpcframeworksimple.remoting.dto;
 import lombok.*;
 
 /**
- * @author wangtao
- * @createTime 2020年10月2日 12:33
+ * @ClassName RpcMessage
+ * @Description
+ * @Author lidaopang
+ * @Date 2024/7/18 上午10.43
+ * @Version 1.0
  */
 @AllArgsConstructor
 @NoArgsConstructor

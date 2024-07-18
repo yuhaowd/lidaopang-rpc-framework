@@ -38,6 +38,9 @@ public class RpcNettyClient implements RpcRequestTransport {
     @Resource
     private ZkServiceDiscovery zkServiceDiscovery;
 
+    @Resource
+    private RpcMessageCodec rpcMessageCodec;
+
 
     @Override
     public RpcResponse sendRpcRequest(RpcRequest rpcRequest) {
@@ -57,7 +60,8 @@ public class RpcNettyClient implements RpcRequestTransport {
                             ch.pipeline()
                                     .addLast(new LoggingHandler(LogLevel.INFO))
                                     .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0, 0))
-                                    .addLast(new RpcMessageCodec())
+//                                    .addLast(new RpcMessageCodec())
+                                    .addLast(rpcMessageCodec)
                                     .addLast(new SimpleChannelInboundHandler<RpcResponse>() {
                                         @Override
                                         protected void channelRead0(ChannelHandlerContext ctx, RpcResponse rpcResponse) throws Exception {

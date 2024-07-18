@@ -37,6 +37,9 @@ public class RpcNettyServer {
     @Resource
     private RpcNettyProperties rpcNettyProperties;
 
+    @Resource
+    private RpcMessageCodec rpcMessageCodec;
+
     @PostConstruct
     public void startServer() throws InterruptedException {
         NioEventLoopGroup group = new NioEventLoopGroup();
@@ -46,7 +49,8 @@ public class RpcNettyServer {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast(new LoggingHandler(LogLevel.INFO))
                         .addLast(new LengthFieldBasedFrameDecoder(65536, 12, 4, 0, 0))
-                        .addLast(new RpcMessageCodec())
+//                        .addLast(new RpcMessageCodec())
+                        .addLast(rpcMessageCodec)
                         .addLast(new SimpleChannelInboundHandler<RpcRequest>() {
                             @Override
                             protected void channelRead0(ChannelHandlerContext ctx, RpcRequest rpcRequest) throws Exception {

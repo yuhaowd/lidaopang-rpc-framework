@@ -12,7 +12,7 @@ import java.util.ServiceLoader;
 @Configuration
 public class RpcTransportConfiguration {
 
-    @Value("${rpc.transport.type:socket}")
+    @Value("${rpc.transport.type:netty}")
     private String transportType;
 
     @Bean

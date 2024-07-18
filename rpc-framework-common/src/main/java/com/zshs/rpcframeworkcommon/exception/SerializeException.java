@@ -1,8 +1,11 @@
 package com.zshs.rpcframeworkcommon.exception;
 
 /**
- * @author shuang.kou
- * @createTime 2020年05月13日 19:54:00
+ * @ClassName SerializeException
+ * @Description
+ * @Author lidaopang
+ * @Date 2024/7/18 上午11:08
+ * @Version 1.0
  */
 public class SerializeException extends RuntimeException {
     public SerializeException(String message) {
